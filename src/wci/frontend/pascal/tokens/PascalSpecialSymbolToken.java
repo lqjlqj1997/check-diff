@@ -35,7 +35,7 @@ public class PascalSpecialSymbolToken extends PascalToken
         throws Exception
     {
         char currentChar = currentChar();
-
+        char temp;
         text = Character.toString(currentChar);
         type = null;
 
@@ -44,7 +44,7 @@ public class PascalSpecialSymbolToken extends PascalToken
             // Single-character special symbols.
             case '+':  case '-':  case '*':  case '/':  case ',':
             case ';':  case '\'': case '=':  case '(':  case ')':
-            case '[':  case ']':  case '{':  case '}':  case '^': {
+            case '[':  case ']':  case '{':  case '}':  case '^':{
                 nextChar();  // consume character
                 break;
             }
@@ -63,9 +63,23 @@ public class PascalSpecialSymbolToken extends PascalToken
 
             // < or <= or <>
             case '<': {
-                currentChar = nextChar();  // consume '<';
+                currentChar = nextChar();       // consume '<';
+                
+                if (currentChar == '~') {   
+                    temp = currentChar;
+                    currentChar = peekChar();   // get next character '~'
 
-                if (currentChar == '=') {
+                    if (currentChar == '>'){
+                        text += temp;
+                        text += currentChar;
+                        nextChar();
+                        nextChar();
+                    }else{
+                        break;
+                    }
+                      
+                }
+                else if (currentChar == '=') {
                     text += currentChar;
                     nextChar();  // consume '='
                 }
@@ -75,6 +89,7 @@ public class PascalSpecialSymbolToken extends PascalToken
                 }
 
                 break;
+                    
             }
 
             // > or >=

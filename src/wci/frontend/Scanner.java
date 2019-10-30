@@ -53,6 +53,17 @@ public abstract class Scanner
         throws Exception;
 
     /**
+     * Call the source's getLine() method.
+     * @return the current line from the source.
+     * @throws Exception if an error occurred.
+     */
+    public String getLine()
+        throws Exception
+    {
+        return source.getLine();
+    }
+
+    /**
      * Call the source's currentChar() method.
      * @return the current character from the source.
      * @throws Exception if an error occurred.
@@ -72,5 +83,15 @@ public abstract class Scanner
         throws Exception
     {
         return source.nextChar();
+    }
+    /**
+     * Call the source's peekChar() method.
+     * @return the next character from the source without consuming.
+     * @throws Exception if an error occurred.
+     */
+    public char peekChar()
+        throws Exception
+    {
+        return source.peekChar();
     }
 }

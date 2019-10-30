@@ -24,12 +24,12 @@ public enum PascalTokenType implements TokenType
     // Special symbols.
     PLUS("+"), MINUS("-"), STAR("*"), SLASH("/"), COLON_EQUALS(":="),
     DOT("."), COMMA(","), SEMICOLON(";"), COLON(":"), QUOTE("'"),
-    EQUALS("="), NOT_EQUALS("<>"), LESS_THAN("<"), LESS_EQUALS("<="),
+    EQUALS("="),EQUIVALENT("<~>"), NOT_EQUALS("<>"), LESS_THAN("<"), LESS_EQUALS("<="),
     GREATER_EQUALS(">="), GREATER_THAN(">"), LEFT_PAREN("("), RIGHT_PAREN(")"),
     LEFT_BRACKET("["), RIGHT_BRACKET("]"), LEFT_BRACE("{"), RIGHT_BRACE("}"),
     UP_ARROW("^"), DOT_DOT(".."),
 
-    IDENTIFIER, INTEGER, REAL, STRING,
+    IDENTIFIER, INTEGER, REAL, STRING,MACRO,
     ERROR, END_OF_FILE;
 
     private static final int FIRST_RESERVED_INDEX = AND.ordinal();
@@ -77,8 +77,7 @@ public enum PascalTokenType implements TokenType
 
     // Hash table of Pascal special symbols.  Each special symbol's text
     // is the key to its Pascal token type.
-    public static Hashtable<String, PascalTokenType> SPECIAL_SYMBOLS =
-        new Hashtable<String, PascalTokenType>();
+    public static Hashtable<String, PascalTokenType> SPECIAL_SYMBOLS = new Hashtable<String, PascalTokenType>();
     static {
         PascalTokenType values[] = PascalTokenType.values();
         for (int i = FIRST_SPECIAL_INDEX; i <= LAST_SPECIAL_INDEX; ++i) {

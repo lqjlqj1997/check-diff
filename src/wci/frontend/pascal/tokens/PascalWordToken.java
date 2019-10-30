@@ -1,10 +1,13 @@
 package wci.frontend.pascal.tokens;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import wci.frontend.*;
 import wci.frontend.pascal.*;
 
-import static wci.frontend.pascal.PascalTokenType.*;
 
+import static wci.frontend.pascal.PascalTokenType.*;
+import static wci.frontend.pascal.PascalErrorCode.*;
 /**
  * <h1>PascalWordToken</h1>
  *
@@ -14,7 +17,8 @@ import static wci.frontend.pascal.PascalTokenType.*;
  * <p>For instructional purposes only.  No warranties.</p>
  */
 public class PascalWordToken extends PascalToken
-{
+{   
+    private static String PATTERN = "^[a-zA-Z0-9]+";
     /**
      * Constructor.
      * @param source the source from where to fetch the token's characters.
@@ -33,17 +37,34 @@ public class PascalWordToken extends PascalToken
     protected void extract()
         throws Exception
     {
-        StringBuilder textBuffer = new StringBuilder();
-        char currentChar = currentChar();
+        Pattern pattern = Pattern.compile(PATTERN);
 
-        // Get the word characters (letter or digit).  The scanner has
-        // already determined that the first character is a letter.
-        while (Character.isLetterOrDigit(currentChar)) {
-            textBuffer.append(currentChar);
-            currentChar = nextChar();  // consume character
+        StringBuilder textBuffer = new StringBuilder();
+        int currentPos = source.getPosition();
+        String line = source.getLine();
+        line = line.substring(currentPos);
+        
+        
+        // get a matcher object
+        Matcher match = pattern.matcher(line); 
+        
+        if(match.find()){
+            source.setPosition(currentPos+match.end());
+            text = match.group();
+        }else{
+            nextChar();  // consume bad character
+            type = ERROR;
+            value = INVALID_CHARACTER; 
         }
 
-        text = textBuffer.toString();
+        // // Get the word characters (letter or digit).  The scanner has
+        // // already determined that the first character is a letter.
+        // while (Character.isLetterOrDigit(currentChar)) {
+        //     textBuffer.append(currentChar);
+        //     currentChar = nextChar();  // consume character
+        // }
+
+        // text = textBuffer.toString();
 
         // Is it a reserved word or an identifier?
         type = (RESERVED_WORDS.contains(text.toLowerCase()))

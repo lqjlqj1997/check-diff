@@ -23,6 +23,15 @@ source lines.'
 + - * / := . , ; : = <> < <= >= > ( ) [ ] { } } ^ ..
 +-:=<>=<==.....
 
+{EQUIVALENT symbol tokens}
+<~>
+<~
+<
+~>
+>
+<~..>
+<..~>
+
 {Number tokens}
 0 1 20 00000000000000000032  31415926
 3.1415926  3.1415926535897932384626433
@@ -32,7 +41,20 @@ source lines.'
 {Decimal point or ..}
 3.14  3..14
 
+{Macro tokens}
+#MACRO 'Here ....'
+#MACRO 'And another value for this token.'
+#MACRO ''
+#MACRO 'abe12f
+#MACRO abf'
+#MACRO 12345
+
+#MAC 'abcd'
+MACRO 'abcd'
+
+
 {Bad tokens}
 123e99  123456789012345  1234.56E.  3.  5..  .14  314.e-2
 What?
 'String not closed
+as'

@@ -48,7 +48,14 @@ public class Source implements MessageProducer
     {
         return lineNum;
     }
-
+    /**
+     * Getter.
+     * @return the current source line .
+     */
+    public String getLine()
+    {
+        return line;
+    }
     /**
      * Getter.
      * @return the position of the next source character in the
@@ -57,6 +64,15 @@ public class Source implements MessageProducer
     public int getPosition()
     {
         return currentPos;
+    }
+    /**
+     * Setter.
+     * @return the position of the next source character in the
+     * current source line.
+     */
+    public void setPosition(int pos)
+    {
+        this.currentPos = pos;
     }
 
     /**
@@ -107,6 +123,7 @@ public class Source implements MessageProducer
         return currentChar();
     }
 
+    
     /**
      * Return the source character following the current character without
      * consuming the current character.

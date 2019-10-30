@@ -38,7 +38,7 @@ public class PascalScanner extends Scanner
 
         Token token;
         char currentChar = currentChar();
-
+        
         // Construct the next token.  The current character determines the
         // token type.
         if (currentChar == EOF) {
@@ -52,6 +52,9 @@ public class PascalScanner extends Scanner
         }
         else if (currentChar == '\'') {
             token = new PascalStringToken(source);
+        }
+        else if (currentChar == '#') {
+            token = new PascalMacroToken(source);
         }
         else if (PascalTokenType.SPECIAL_SYMBOLS
                  .containsKey(Character.toString(currentChar))) {

@@ -6,6 +6,9 @@ import wci.frontend.pascal.*;
 import static wci.frontend.pascal.PascalTokenType.*;
 import static wci.frontend.pascal.PascalErrorCode.*;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * <h1>PascalNumberToken</h1>
  *
@@ -17,7 +20,8 @@ import static wci.frontend.pascal.PascalErrorCode.*;
 public class PascalNumberToken extends PascalToken
 {
     private static final int MAX_EXPONENT = 37;
-
+    private static String REAL_PATTERN = "^(?<wholeDigits>[0-9]+)([.](?<fractionDigits>[0-9]+))?((E|e)(?<exponentSign>[+]|[-])?(?<exponentDigits>[0-9]+))?";
+    
     /**
      * Constructor.
      * @param source the source from where to fetch the token's characters.
@@ -37,6 +41,7 @@ public class PascalNumberToken extends PascalToken
         throws Exception
     {
         StringBuilder textBuffer = new StringBuilder();  // token's characters
+        System.out.println(textBuffer.toString());
         extractNumber(textBuffer);
         text = textBuffer.toString();
     }
@@ -49,58 +54,54 @@ public class PascalNumberToken extends PascalToken
     protected void extractNumber(StringBuilder textBuffer)
         throws Exception
     {
-        String wholeDigits = null;     // digits before the decimal point
-        String fractionDigits = null;  // digits after the decimal point
-        String exponentDigits = null;  // exponent digits
-        char exponentSign = '+';       // exponent sign '+' or '-'
-        boolean sawDotDot = false;     // true if saw .. token
+        String wholeDigits      = null;     // digits before the decimal point
+        String fractionDigits   = null;  // digits after the decimal point
+        String exponentDigits   = null;  // exponent digits
+        char exponentSign       = '+';       // exponent sign '+' or '-'
         char currentChar;              // current character
 
         type = INTEGER;  // assume INTEGER token type for now
 
-        // Extract the digits of the whole part of the number.
-        wholeDigits = unsignedIntegerDigits(textBuffer);
-        if (type == ERROR) {
-            return;
+        Pattern pattern = Pattern.compile(REAL_PATTERN);
+
+        int currentPos = source.getPosition();
+        String line = source.getLine();
+        line = line.substring(currentPos);
+        
+        
+        // get a matcher object
+        Matcher match = pattern.matcher(line); 
+        
+        if(match.find()){
+            
+            wholeDigits      = match.group("wholeDigits");     // digits before the decimal point
+            fractionDigits   = match.group("fractionDigits");  // digits after the decimal point
+            exponentDigits   = match.group("exponentDigits");  // exponent digits
+            if(match.group("exponentSign") != null){
+                exponentSign = match.group("exponentSign").charAt(0);       // exponent sign '+' or '-'
+            }
+
+            if(fractionDigits != null |exponentDigits != null ){
+                type = REAL;
+                source.setPosition(currentPos+match.end());
+                textBuffer.append(match.group());
+            
+            }else if(wholeDigits != null){
+                type = INTEGER;    
+                source.setPosition(currentPos+match.end());
+                if(peekChar()=='.'|peekChar()=='E'|peekChar()=='e'){
+                    type = ERROR;
+                    value = INVALID_NUMBER;
+                }        
+                textBuffer.append(match.group());
+            }
+            
+            
+
         }
-
-        // Is there a . ?
-        // It could be a decimal point or the start of a .. token.
-        currentChar = currentChar();
-        if (currentChar == '.') {
-            if (peekChar() == '.') {
-                sawDotDot = true;  // it's a ".." token, so don't consume it
-            }
-            else {
-                type = REAL;  // decimal point, so token type is REAL
-                textBuffer.append(currentChar);
-                currentChar = nextChar();  // consume decimal point
-
-                // Collect the digits of the fraction part of the number.
-                fractionDigits = unsignedIntegerDigits(textBuffer);
-                if (type == ERROR) {
-                    return;
-                }
-            }
-        }
-
-        // Is there an exponent part?
-        // There cannot be an exponent if we already saw a ".." token.
-        currentChar = currentChar();
-        if (!sawDotDot && ((currentChar == 'E') || (currentChar == 'e'))) {
-            type = REAL;  // exponent, so token type is REAL
-            textBuffer.append(currentChar);
-            currentChar = nextChar();  // consume 'E' or 'e'
-
-            // Exponent sign?
-            if ((currentChar == '+') || (currentChar == '-')) {
-                textBuffer.append(currentChar);
-                exponentSign = currentChar;
-                currentChar = nextChar();  // consume '+' or '-'
-            }
-
-            // Extract the digits of the exponent.
-            exponentDigits = unsignedIntegerDigits(textBuffer);
+        else{
+            type = ERROR;
+            value = INVALID_NUMBER; 
         }
 
         // Compute the value of an integer number token.
@@ -123,34 +124,6 @@ public class PascalNumberToken extends PascalToken
         }
     }
 
-    /**
-     * Extract and return the digits of an unsigned integer.
-     * @param textBuffer the buffer to append the token's characters.
-     * @return the string of digits.
-     * @throws Exception if an error occurred.
-     */
-    private String unsignedIntegerDigits(StringBuilder textBuffer)
-        throws Exception
-    {
-        char currentChar = currentChar();
-
-        // Must have at least one digit.
-        if (!Character.isDigit(currentChar)) {
-            type = ERROR;
-            value = INVALID_NUMBER;
-            return null;
-        }
-
-        // Extract the digits.
-        StringBuilder digits = new StringBuilder();
-        while (Character.isDigit(currentChar)) {
-            textBuffer.append(currentChar);
-            digits.append(currentChar);
-            currentChar = nextChar();  // consume digit
-        }
-
-        return digits.toString();
-    }
 
     /**
      * Compute and return the integer value of a string of digits.
